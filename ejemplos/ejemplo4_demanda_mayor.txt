@@ -1,0 +1,7 @@
+# Demanda (80) mayor que la oferta (70): se agrega un ORIGEN ficticio.
+# Un destino se queda sin surtir por completo.
+oferta: 30 40
+demanda: 20 25 35
+costos:
+2 3 1
+5 4 8

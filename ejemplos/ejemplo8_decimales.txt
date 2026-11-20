@@ -1,0 +1,6 @@
+# Costos con decimales
+oferta: 100 150
+demanda: 80 90 80
+costos:
+1.5 2.25 3.1
+2.8 1.75 2.4

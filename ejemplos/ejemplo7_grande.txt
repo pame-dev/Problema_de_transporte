@@ -1,0 +1,8 @@
+# Problema 4x5 balanceado: DIMO necesita varias iteraciones desde Esquina Noroeste.
+oferta: 40 60 50 50
+demanda: 30 50 40 40 40
+costos:
+12 7 9 15 6
+8 11 13 5 10
+14 9 6 12 11
+7 13 10 8 14

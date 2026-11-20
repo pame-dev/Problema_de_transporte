@@ -1,0 +1,7 @@
+# Ruta prohibida O1 -> D3: se usa un costo muy grande (999) para que nunca se use.
+oferta: 30 40 30
+demanda: 20 50 30
+costos:
+5 7 999
+4 6 8
+9 3 6

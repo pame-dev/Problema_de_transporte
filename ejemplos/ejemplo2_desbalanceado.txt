@@ -1,0 +1,7 @@
+# Oferta (75) mayor que la demanda (50): se agrega un destino ficticio
+oferta: 20 30 25
+demanda: 10 25 15
+costos:
+4 8 8
+16 24 16
+8 16 24
