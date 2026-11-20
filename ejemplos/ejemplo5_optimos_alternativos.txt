@@ -1,0 +1,6 @@
+# Varios óptimos: en la tabla final aparecen índices d_ij = 0 en celdas no básicas.
+oferta: 20 30
+demanda: 25 25
+costos:
+3 5
+3 5

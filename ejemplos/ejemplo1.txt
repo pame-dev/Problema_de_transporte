@@ -1,0 +1,7 @@
+# Problema balanceado clásico. Costo óptimo esperado: 1020
+oferta: 35 50 40
+demanda: 45 20 30 30
+costos:
+8 6 10 9
+9 12 13 7
+14 9 16 5
