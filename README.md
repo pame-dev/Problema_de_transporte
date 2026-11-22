@@ -5,14 +5,15 @@ transporte en dos etapas:
 
 1. **Solución básica factible inicial** con uno de tres métodos:
    Esquina Noroeste, Costo Mínimo o Aproximación de Vogel.
-2. **Optimización** con el método **DIMO** (Distribución Modificada / MODI).
+2. **Optimización** con el método **DIMO** (Distribución Modificada / MODI) o con el
+   método del **Banquillo** (Stepping Stone / Piedra de Paso).
 
 Todo el procedimiento se imprime en la terminal y se guarda en la carpeta
 `resultados/` en tres formatos:
 
-- `reporte_<metodo>.txt`: tablas en texto.
-- `reporte_<metodo>.csv`: tablas para abrir en Excel o LibreOffice (separador `;`).
-- `reporte_<metodo>.html`: tablas con formato para ver en el navegador.
+- `reporte_<metodo>_<optimizacion>.txt`: tablas en texto.
+- `reporte_<metodo>_<optimizacion>.csv`: tablas para abrir en Excel o LibreOffice (separador `;`).
+- `reporte_<metodo>_<optimizacion>.html`: tablas con formato para ver en el navegador.
 
 ## Uso
 
@@ -43,6 +44,7 @@ el programa agrega automáticamente un origen o destino ficticio con costo 0.
 | `balanceo.py` | Balanceo con origen/destino ficticio |
 | `metodos_iniciales.py` | Esquina Noroeste, Costo Mínimo y Vogel |
 | `dimo.py` | Método DIMO: multiplicadores u y v, índices, ciclo, theta |
+| `banquillo.py` | Método del Banquillo: ciclo cerrado y costo marginal de cada celda no básica |
 | `utilidades.py` | Formato de tablas y guardado de reportes |
 | `ejemplos/` | Problemas de prueba |
 
@@ -53,12 +55,18 @@ asignación cero (solución degenerada). En las tablas de DIMO las celdas no
 básicas muestran su índice `d=c_ij - u_i - v_j`; cuando todos son mayores o
 iguales a cero la solución es óptima.
 
+En las tablas del Banquillo, `d` es el costo marginal de la celda: se obtiene
+trazando su ciclo cerrado sobre celdas básicas y sumando los costos con signos
+alternados (+, -, +, -...). Cada iteración lista el ciclo y la suma de cada celda.
+Ambos métodos llegan al mismo valor de `d` y al mismo óptimo.
+
 ## Casos de prueba
 
 Los archivos de `ejemplos/` cubren distintos tipos de problema. Se pueden correr
 con `python3 main.py ejemplos/<archivo>` o capturarlos a mano con los valores
 que se listan a continuación (cada línea corresponde a una pregunta del menú).
-Al final el programa pregunta el método inicial; la opción `4` corre los tres.
+Al final el programa pregunta el método inicial (la opción `4` corre los tres) y
+el método de optimización: `1` DIMO, `2` Banquillo o `3` ambos.
 
 ### 1. Balanceado clásico (`ejemplo1.txt`, óptimo 1020)
 Sirve para comparar los tres métodos iniciales: Noroeste da 1180, Costo Mínimo
@@ -93,7 +101,9 @@ básica con asignación cero, que se muestra como `0 [costo]`.
 - Demanda de los 4 destinos: `5 15 15 15`
 
 ### 4. Demanda mayor que la oferta (`ejemplo4_demanda_mayor.txt`, óptimo 205)
-Se agrega un origen ficticio. El destino que recibe de él se queda sin surtir.
+Se agrega un origen ficticio con las 10 unidades que faltan. Lo que un destino
+recibe del ficticio es demanda que no se cubre: en el óptimo a D1 le faltan 5
+unidades y a D3 otras 5 (reciben 15 de 20 y 30 de 35).
 - Número de orígenes (filas): `2`
 - Número de destinos (columnas): `3`
 - Costos del origen O1: `2 3 1`

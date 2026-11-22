@@ -1,7 +1,7 @@
 """Programa principal: resuelve un problema de transporte.
 
 1. Obtiene una solución básica factible (Esquina Noroeste, Costo Mínimo o Vogel).
-2. La optimiza con el método DIMO.
+2. La optimiza con el método DIMO o con el método del Banquillo (Stepping Stone).
 3. Muestra todo en la terminal y lo guarda en resultados/ como .txt, .csv y .html.
 
 Uso:
@@ -13,11 +13,17 @@ import os
 import sys
 
 from balanceo import balancear
+from banquillo import banquillo
 from dimo import dimo
 from metodos_iniciales import METODOS
 from utilidades import Reporte, tabla_transporte
 
 CARPETA_RESULTADOS = "resultados"
+
+OPTIMIZACIONES = {
+    "1": ("DIMO", dimo, "dimo"),
+    "2": ("Banquillo", banquillo, "banquillo"),
+}
 
 
 def a_numero(texto):
@@ -117,11 +123,26 @@ def elegir_metodos():
         print("  Opción no válida.")
 
 
-def resolver(costos, oferta, demanda, nombre, funcion, clave_archivo):
+def elegir_optimizacion():
+    print("\n--- Método de optimización ---")
+    for clave, (nombre, _, _) in OPTIMIZACIONES.items():
+        print(f"  {clave}) {nombre}")
+    print("  3) Ambos (comparar)")
+    while True:
+        opcion = input("Elige una opción: ").strip()
+        if opcion in OPTIMIZACIONES:
+            return [OPTIMIZACIONES[opcion]]
+        if opcion == "3":
+            return list(OPTIMIZACIONES.values())
+        print("  Opción no válida.")
+
+
+def resolver(costos, oferta, demanda, nombre, funcion, clave_archivo,
+             nombre_opt="DIMO", optimizar=dimo, clave_opt="dimo"):
     nombres_f = [f"O{i + 1}" for i in range(len(costos))]
     nombres_c = [f"D{j + 1}" for j in range(len(costos[0]))]
 
-    reporte = Reporte(f"Problema de transporte - {nombre} + DIMO")
+    reporte = Reporte(f"Problema de transporte - {nombre} + {nombre_opt}")
     reporte.texto("\n=== Datos del problema ===")
     enc, fil = tabla_transporte(costos, [[0] * len(costos[0]) for _ in costos], set(),
                                 oferta, demanda, nombres_f, nombres_c)
@@ -131,9 +152,9 @@ def resolver(costos, oferta, demanda, nombre, funcion, clave_archivo):
         costos, oferta, demanda, nombres_f, nombres_c, reporte)
 
     asignacion, basicas = funcion(costos_b, oferta_b, demanda_b, nombres_f, nombres_c, reporte)
-    dimo(costos_b, asignacion, basicas, oferta_b, demanda_b, nombres_f, nombres_c, reporte)
+    optimizar(costos_b, asignacion, basicas, oferta_b, demanda_b, nombres_f, nombres_c, reporte)
 
-    rutas = reporte.guardar(CARPETA_RESULTADOS, f"reporte_{clave_archivo}")
+    rutas = reporte.guardar(CARPETA_RESULTADOS, f"reporte_{clave_archivo}_{clave_opt}")
     print("\nReporte guardado en:")
     for r in rutas:
         print("  " + os.path.abspath(r))
@@ -142,7 +163,7 @@ def resolver(costos, oferta, demanda, nombre, funcion, clave_archivo):
 def main():
     print("=" * 60)
     print("   RESOLUCIÓN DEL PROBLEMA DE TRANSPORTE")
-    print("   Solución inicial + optimización con DIMO")
+    print("   Solución inicial + optimización (DIMO o Banquillo)")
     print("=" * 60)
 
     if len(sys.argv) > 1:
@@ -167,11 +188,15 @@ def main():
             else:
                 print("  Opción no válida.")
 
-    for nombre, funcion, clave in elegir_metodos():
-        print("\n" + "#" * 60)
-        print(f"#  {nombre}")
-        print("#" * 60)
-        resolver(costos, oferta, demanda, nombre, funcion, clave)
+    metodos = elegir_metodos()
+    optimizaciones = elegir_optimizacion()
+    for nombre, funcion, clave in metodos:
+        for nombre_opt, optimizar, clave_opt in optimizaciones:
+            print("\n" + "#" * 60)
+            print(f"#  {nombre} + {nombre_opt}")
+            print("#" * 60)
+            resolver(costos, oferta, demanda, nombre, funcion, clave,
+                     nombre_opt, optimizar, clave_opt)
 
 
 if __name__ == "__main__":

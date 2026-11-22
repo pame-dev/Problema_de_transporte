@@ -1,5 +1,6 @@
 # Demanda (80) mayor que la oferta (70): se agrega un ORIGEN ficticio.
-# Un destino se queda sin surtir por completo.
+# Las 10 unidades del origen ficticio son demanda no cubierta. En el óptimo (205)
+# se reparten: a D1 le faltan 5 y a D3 le faltan 5.
 oferta: 30 40
 demanda: 20 25 35
 costos:
