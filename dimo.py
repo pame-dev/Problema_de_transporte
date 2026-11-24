@@ -317,4 +317,4 @@ def dimo(
             + "."
         )
 
-    return asignacion, basicas
+    return asignacion, basicas, iteracion
