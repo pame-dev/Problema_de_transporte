@@ -16,7 +16,7 @@ from balanceo import balancear
 from banquillo import banquillo
 from dimo import dimo
 from metodos_iniciales import METODOS
-from utilidades import Reporte, tabla_transporte
+from utilidades import Reporte, tabla_transporte, costo_total, fmt
 
 CARPETA_RESULTADOS = "resultados"
 
@@ -152,10 +152,56 @@ def resolver(costos, oferta, demanda, nombre, funcion, clave_archivo,
         costos, oferta, demanda, nombres_f, nombres_c, reporte)
 
     asignacion, basicas = funcion(costos_b, oferta_b, demanda_b, nombres_f, nombres_c, reporte)
-    optimizar(costos_b, asignacion, basicas, oferta_b, demanda_b, nombres_f, nombres_c, reporte)
+    costo_inicial = costo_total(costos_b, asignacion)
+    optima, _, iteraciones = optimizar(costos_b, asignacion, basicas, oferta_b, demanda_b,
+                                       nombres_f, nombres_c, reporte)
 
     rutas = reporte.guardar(CARPETA_RESULTADOS, f"reporte_{clave_archivo}_{clave_opt}")
     print("\nReporte guardado en:")
+    for r in rutas:
+        print("  " + os.path.abspath(r))
+
+    # Datos para la tabla comparativa final
+    return [nombre, nombre_opt, costo_inicial, iteraciones, costo_total(costos_b, optima)]
+
+
+def mostrar_comparacion(resultados):
+    """Imprime y guarda dos tablas: métodos iniciales y métodos de optimización."""
+    reporte = Reporte("Comparación de métodos")
+    reporte.texto("\n" + "#" * 60)
+    reporte.texto("#  COMPARACIÓN DE MÉTODOS")
+    reporte.texto("#" * 60)
+    optimo = min(r[4] for r in resultados)
+
+    # Tabla 1: un renglón por método inicial (sin repetir si hay dos optimizaciones)
+    iniciales = []
+    for metodo, _, inicial, _, _ in resultados:
+        if metodo not in [fila[0] for fila in iniciales]:
+            iniciales.append([metodo, fmt(inicial), fmt(inicial - optimo)])
+    reporte.tabla("Métodos iniciales:",
+                  ["Método inicial", "Costo inicial", "Diferencia con el óptimo"], iniciales)
+
+    # Mejor punto de partida = menor costo inicial (puede haber empate)
+    menor = min(r[2] for r in resultados)
+    mejores = []
+    for r in resultados:
+        if r[2] == menor and r[0] not in mejores:
+            mejores.append(r[0])
+    reporte.texto(f"Mejor solución inicial: {', '.join(mejores)} (costo {fmt(menor)}).")
+    reporte.texto()
+
+    # Tabla 2: un renglón por combinación de método inicial y optimización
+    optimizaciones = [[metodo, opt, str(it), fmt(final)]
+                      for metodo, opt, _, it, final in resultados]
+    reporte.tabla("Métodos de optimización:",
+                  ["Partiendo de", "Optimización", "Iteraciones", "Costo óptimo"], optimizaciones)
+
+    optimos = {fmt(r[4]) for r in resultados}
+    if len(optimos) == 1:
+        reporte.texto(f"Todas las combinaciones llegan al mismo costo óptimo: {optimos.pop()}.")
+
+    rutas = reporte.guardar(CARPETA_RESULTADOS, "comparacion")
+    print("\nComparación guardada en:")
     for r in rutas:
         print("  " + os.path.abspath(r))
 
@@ -190,13 +236,18 @@ def main():
 
     metodos = elegir_metodos()
     optimizaciones = elegir_optimizacion()
+    resultados = []
     for nombre, funcion, clave in metodos:
         for nombre_opt, optimizar, clave_opt in optimizaciones:
             print("\n" + "#" * 60)
             print(f"#  {nombre} + {nombre_opt}")
             print("#" * 60)
-            resolver(costos, oferta, demanda, nombre, funcion, clave,
-                     nombre_opt, optimizar, clave_opt)
+            resultados.append(resolver(costos, oferta, demanda, nombre, funcion, clave,
+                                       nombre_opt, optimizar, clave_opt))
+
+    # La tabla solo tiene sentido si se corrió más de una combinación
+    if len(resultados) > 1:
+        mostrar_comparacion(resultados)
 
 
 if __name__ == "__main__":

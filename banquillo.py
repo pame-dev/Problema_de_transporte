@@ -126,4 +126,4 @@ def banquillo(costos, asignacion, basicas, oferta, demanda, nombres_f, nombres_c
     if alternativas:
         reporte.texto("Existen soluciones óptimas alternativas: hay costos marginales = 0 en "
                       + ", ".join(f"({nombres_f[i]}, {nombres_c[j]})" for i, j in alternativas) + ".")
-    return asignacion, basicas
+    return asignacion, basicas, iteracion
